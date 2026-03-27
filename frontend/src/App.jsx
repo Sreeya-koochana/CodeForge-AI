@@ -898,7 +898,7 @@ async function fetchJson(url, useAuth = true) {
       if (response.status === 401 || response.status === 403) {
         throw new Error('Your session has expired or you are not authorized. Please log in again.')
       }
-      throw new Error(resolveApiErrorMessage(data, url))
+      throw new Error(resolveApiErrorMessage(response, data, url))
     }
     return data
   } catch (error) {
@@ -922,7 +922,7 @@ async function postJson(url, body, useAuth = true) {
       if (response.status === 401 || response.status === 403) {
         throw new Error('Your session has expired or you are not authorized. Please log in again.')
       }
-      throw new Error(resolveApiErrorMessage(data, url))
+      throw new Error(resolveApiErrorMessage(response, data, url))
     }
     return data
   } catch (error) {
@@ -942,7 +942,7 @@ async function deleteJson(url) {
       if (response.status === 401 || response.status === 403) {
         throw new Error('Your session has expired or you are not authorized. Please log in again.')
       }
-      throw new Error(resolveApiErrorMessage(data, url))
+      throw new Error(resolveApiErrorMessage(response, data, url))
     }
   } catch (error) {
     throw normalizeNetworkError(error)
@@ -968,7 +968,7 @@ async function parseResponseBody(response) {
   return text ? { raw: text } : {}
 }
 
-function resolveApiErrorMessage(data, url) {
+function resolveApiErrorMessage(response, data, url) {
   if (typeof data?.message === 'string' && data.message.trim()) {
     return data.message
   }
@@ -981,7 +981,7 @@ function resolveApiErrorMessage(data, url) {
     const raw = data.raw.trim()
 
     if (!raw) {
-      return `Request failed for ${url}`
+      return `${response.status} ${response.statusText}: request failed for ${url}`
     }
     if (/proxy error|ECONNREFUSED|connect ECONNREFUSED/i.test(raw)) {
       return 'Backend is not reachable on http://127.0.0.1:8080. Start the Spring Boot server and try again.'
@@ -993,7 +993,7 @@ function resolveApiErrorMessage(data, url) {
     return raw
   }
 
-  return `Request failed for ${url}`
+  return `${response.status} ${response.statusText}: request failed for ${url}`
 }
 
 function normalizeNetworkError(error) {

@@ -24,7 +24,7 @@ Important:
 Set these in Render:
 
 - `SPRING_PROFILES_ACTIVE=aiven`
-- `DB_URL=jdbc:mysql://YOUR-HOST:YOUR-PORT/YOUR-DB?sslMode=REQUIRED&enabledTLSProtocols=TLSv1.2,TLSv1.3`
+- `DB_URL=jdbc:mysql://YOUR-HOST:YOUR-PORT/YOUR-DB?sslMode=REQUIRED&enabledTLSProtocols=TLSv1.2,TLSv1.3&serverTimezone=UTC`
 - `DB_USERNAME=your-db-username`
 - `DB_PASSWORD=your-db-password`
 - `OPENAI_API_KEY=your-openai-api-key`
