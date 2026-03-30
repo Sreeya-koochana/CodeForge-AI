@@ -1,7 +1,7 @@
 package com.aibuilder.service;
 
 import com.aibuilder.config.AiGenerationProperties;
-import com.aibuilder.ai.OpenAiClient;
+import com.aibuilder.ai.GeminiClient;
 import com.aibuilder.dto.ApiDefinitionResponse;
 import com.aibuilder.dto.GenerateApiRequest;
 import com.aibuilder.dto.GeneratedFileResponse;
@@ -21,7 +21,7 @@ public class ApiGenerationService {
 
     private final ProjectService projectService;
     private final PromptBuilderService promptBuilderService;
-    private final OpenAiClient openAiClient;
+    private final GeminiClient geminiClient;
     private final LocalTemplateGenerationService localTemplateGenerationService;
     private final AiGenerationProperties aiGenerationProperties;
     private final CodeProcessorService codeProcessorService;
@@ -31,7 +31,7 @@ public class ApiGenerationService {
     public ApiGenerationService(
             ProjectService projectService,
             PromptBuilderService promptBuilderService,
-            OpenAiClient openAiClient,
+            GeminiClient geminiClient,
             LocalTemplateGenerationService localTemplateGenerationService,
             AiGenerationProperties aiGenerationProperties,
             CodeProcessorService codeProcessorService,
@@ -40,7 +40,7 @@ public class ApiGenerationService {
     ) {
         this.projectService = projectService;
         this.promptBuilderService = promptBuilderService;
-        this.openAiClient = openAiClient;
+        this.geminiClient = geminiClient;
         this.localTemplateGenerationService = localTemplateGenerationService;
         this.aiGenerationProperties = aiGenerationProperties;
         this.codeProcessorService = codeProcessorService;
@@ -51,8 +51,8 @@ public class ApiGenerationService {
     public ApiDefinitionResponse generate(GenerateApiRequest request) {
         Project project = projectService.getRequiredProject(request.projectId());
         String prompt = promptBuilderService.buildPrompt(request);
-        String generatedCode = "openai".equalsIgnoreCase(aiGenerationProperties.provider())
-                ? openAiClient.generateCode(prompt)
+        String generatedCode = "gemini".equalsIgnoreCase(aiGenerationProperties.provider())
+                ? geminiClient.generateCode(prompt)
                 : localTemplateGenerationService.generate(request);
 
         ApiDefinition definition = apiDefinitionRepository.save(ApiDefinition.builder()

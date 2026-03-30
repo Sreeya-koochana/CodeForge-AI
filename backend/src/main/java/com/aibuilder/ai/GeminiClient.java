@@ -1,6 +1,6 @@
 package com.aibuilder.ai;
 
-public interface OpenAiClient {
+public interface GeminiClient {
 
     String generateCode(String prompt);
 }

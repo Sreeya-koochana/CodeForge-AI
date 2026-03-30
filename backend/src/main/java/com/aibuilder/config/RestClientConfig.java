@@ -10,7 +10,7 @@ import org.springframework.web.client.RestClient;
 public class RestClientConfig {
 
     @Bean
-    RestClient openAiRestClient(OpenAiProperties properties) {
+    RestClient geminiRestClient(GeminiProperties properties) {
         return RestClient.builder()
                 .baseUrl(properties.baseUrl())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + properties.apiKey())

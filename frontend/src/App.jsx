@@ -4,6 +4,7 @@ import './App.css'
 const initialField = { name: 'name', type: 'String', required: true }
 const storageKey = 'ai-builder-user'
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+const apiOriginLabel = apiBaseUrl || 'http://127.0.0.1:8080'
 
 const emptyTester = {
   url: '',
@@ -276,7 +277,7 @@ function App() {
   async function handleDownloadZip(apiId) {
     try {
       const name = `${generatorForm.entityName || 'generated-api'}.zip`
-      const response = await fetch(`/api/generation/${apiId}/zip?name=${encodeURIComponent(generatorForm.entityName || 'generated-api')}`, {
+      const response = await fetch(buildApiUrl(`/api/generation/${apiId}/zip?name=${encodeURIComponent(generatorForm.entityName || 'generated-api')}`), {
         headers: buildAuthHeaders(),
       })
 
@@ -305,16 +306,16 @@ function App() {
     try {
       const trimmedUrl = testerForm.url.trim()
       if (!trimmedUrl) {
-        throw new Error('Enter a full URL for the API tester, for example http://127.0.0.1:8080/api/products')
+        throw new Error(`Enter a full URL for the API tester, for example ${apiOriginLabel}/api/products`)
       }
       if (!/^https?:\/\//i.test(trimmedUrl)) {
         throw new Error('Use a full URL starting with http:// or https:// in the API tester.')
       }
 
       const parsedHeaders = testerForm.headers ? JSON.parse(testerForm.headers) : {}
-      const needsLocalAuth = /127\.0\.0\.1:8080|localhost:8080/.test(trimmedUrl)
+      const needsBackendAuth = isBackendUrl(trimmedUrl)
       const requestHeaders =
-        needsLocalAuth && currentUser?.token && !parsedHeaders.Authorization
+        needsBackendAuth && currentUser?.token && !parsedHeaders.Authorization
           ? { ...parsedHeaders, Authorization: `Bearer ${currentUser.token}` }
           : parsedHeaders
 
@@ -984,10 +985,10 @@ function resolveApiErrorMessage(response, data, url) {
       return `${response.status} ${response.statusText}: request failed for ${url}`
     }
     if (/proxy error|ECONNREFUSED|connect ECONNREFUSED/i.test(raw)) {
-      return 'Backend is not reachable on http://127.0.0.1:8080. Start the Spring Boot server and try again.'
+      return `Backend is not reachable on ${apiOriginLabel}. Check that the deployed API is running and that VITE_API_BASE_URL is correct.`
     }
     if (/^<!doctype html>|^<html/i.test(raw)) {
-      return 'The backend returned an unexpected HTML error page. Check that the Spring Boot server is running correctly on port 8080.'
+      return `The backend returned an unexpected HTML error page. Check that ${apiOriginLabel} is serving the Spring Boot API correctly.`
     }
 
     return raw
@@ -998,7 +999,7 @@ function resolveApiErrorMessage(response, data, url) {
 
 function normalizeNetworkError(error) {
   if (error instanceof TypeError) {
-    return new Error('Backend is not reachable on http://127.0.0.1:8080. Start the Spring Boot server and try again.')
+    return new Error(`Backend is not reachable on ${apiOriginLabel}. Check that the deployed API is running and that VITE_API_BASE_URL is correct.`)
   }
 
   return error
@@ -1043,7 +1044,21 @@ function deriveTesterPreset(activeApi) {
   }
 
   return {
-    url: `http://127.0.0.1:8080${mappingMatch[1]}`,
+    url: `${apiOriginLabel}${mappingMatch[1]}`,
+  }
+}
+
+function isBackendUrl(url) {
+  try {
+    const target = new URL(url)
+
+    if (!apiBaseUrl) {
+      return /^(127\.0\.0\.1|localhost)$/i.test(target.hostname) && target.port === '8080'
+    }
+
+    return target.origin === apiBaseUrl
+  } catch {
+    return false
   }
 }
 

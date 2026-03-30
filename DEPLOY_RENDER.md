@@ -12,7 +12,7 @@ You should have:
 
 - a GitHub repo with the latest project pushed
 - your Aiven MySQL connection values
-- your OpenAI API key
+- your Gemini API key
 
 Important:
 
@@ -27,7 +27,7 @@ Set these in Render:
 - `DB_URL=jdbc:mysql://YOUR-HOST:YOUR-PORT/YOUR-DB?sslMode=REQUIRED&enabledTLSProtocols=TLSv1.2,TLSv1.3&serverTimezone=UTC`
 - `DB_USERNAME=your-db-username`
 - `DB_PASSWORD=your-db-password`
-- `OPENAI_API_KEY=your-openai-api-key`
+- `GEMINI_API_KEY=your-gemini-api-key`
 - `JWT_SECRET=any-long-random-secret-at-least-32-characters`
 - `CORS_ALLOWED_ORIGINS=https://your-render-domain.onrender.com`
 
